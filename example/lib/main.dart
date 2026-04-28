@@ -30,6 +30,7 @@ class ExampleApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'samseer example',
+      debugShowCheckedModeBanner: false,
       navigatorKey: samseer.navigatorKey,
       theme: ThemeData(useMaterial3: true, colorSchemeSeed: Colors.indigo),
       darkTheme: ThemeData(

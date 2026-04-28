@@ -3,17 +3,23 @@
 > Beautiful HTTP inspector for Flutter — a modern, all-in-one alternative to Alice, in a single package.
 
 [![Pub](https://img.shields.io/pub/v/samseer.svg)](https://pub.dev/packages/samseer)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Style](https://img.shields.io/badge/style-flutter__lints-blue.svg)](https://pub.dev/packages/flutter_lints)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-5B6BFF.svg)](#-contribute-with-us)
+[![Sponsor](https://img.shields.io/badge/Sponsor-💜-EA4AAA.svg)](https://github.com/sponsors/samueljiwandono0310)
 
 Samseer captures every HTTP request your Flutter app makes — from **Dio**, the **`http`** package, and **`dart:io` HttpClient** — and presents it in a polished Material 3 inspector you can open with a shake, a tap on a floating bubble, or a single line of code.
 
 If you've used [Alice](https://pub.dev/packages/alice) or [Chuck](https://github.com/jhomlala/chucker_flutter), Samseer is the spiritual successor: **same idea, modern UI, single dependency, no separate adapter packages**.
 
 <p align="center">
-  <img src="assets/screenshots/call_list.svg" width="240" alt="Call list" />
-  <img src="assets/screenshots/call_detail.svg" width="240" alt="Call detail" />
-  <img src="assets/screenshots/stats.svg" width="240" alt="Stats" />
+  <img src="assets/screenshots/inspector.png" width="220" alt="Call list" />
+  <img src="assets/screenshots/detail_overview.png" width="220" alt="Call detail — overview" />
+  <img src="assets/screenshots/stat.png" width="220" alt="Stats" />
+</p>
+
+<p align="center">
+  <img src="assets/screenshots/response.png" width="220" alt="Response tab with syntax-highlighted JSON" />
+  <img src="assets/screenshots/cURL.png" width="220" alt="cURL tab" />
 </p>
 
 ---
@@ -207,16 +213,38 @@ Tap any of the buttons to fire requests — they'll appear in the inspector live
 
 ---
 
-## 🤝 Contributing
+## 🤝 Contribute with us
 
-PRs welcome! Run the example app, write a test for any new behavior, and keep the public API surface small.
+Samseer is open and growing — and I'd love your help to make it the best HTTP inspector in the Flutter ecosystem. Whether you're squashing bugs, adding a new HTTP client integration, polishing the UI, or improving docs — your contribution is welcome.
 
-```sh
-flutter analyze
-flutter test
-```
+**Ways to contribute**
+
+- 🐛 **Bug reports & feature requests** — open an issue on [GitHub](https://github.com/samueljiwandono0310/samseer/issues)
+- 🚀 **Code contributions** — fork, branch, send a PR. Make sure these still pass:
+   ```sh
+   flutter analyze
+   flutter test
+   ```
+- 🎨 **Design feedback** — share screenshots, mockups, or UX ideas. The bar is "fancier than Alice" 😉
+- 🌐 **HTTP client integrations** — Chopper, GraphQL, Cronet, etc. are on the roadmap
+- 📣 **Spread the word** — star the repo, share with your team, write a blog post
+
+**First-time contributors are very welcome.** Pick anything from the [roadmap](#-whats-included-vs-not-yet), open an issue first to discuss your approach, and let's build it together.
 
 ---
 
-## 📜 License
-2026 Samuel Jiwandono
+## ☕ Support this project
+
+Samseer is built and maintained on personal time. If it saves you debugging hours, treat me to a coffee — every bit of support helps me keep building, polishing, and shipping new features.
+
+<p align="center">
+  <a href="https://github.com/sponsors/samueljiwandono0310">
+    <img src="https://img.shields.io/badge/Sponsor%20on%20GitHub-💜-EA4AAA?style=for-the-badge&logo=github" alt="Sponsor on GitHub" />
+  </a>
+</p>
+
+Sponsors get a special thank-you in the next release notes. 🙏
+
+---
+
+Made with 💙 by [Samuel Jiwandono](https://github.com/samueljiwandono0310) — and hopefully you next.

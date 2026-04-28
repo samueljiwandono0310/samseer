@@ -33,7 +33,7 @@ class CallDetailScreen extends StatelessWidget {
                 children: [
                   MethodBadge(method: call.method),
                   const SizedBox(width: 8),
-                  StatusBadge(call: call),
+                  StatusBadge(call: call, heroTag: 'samseer.status.${call.id}'),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(

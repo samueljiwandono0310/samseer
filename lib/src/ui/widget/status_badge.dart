@@ -4,9 +4,16 @@ import '../../model/http_call.dart';
 import '../theme/samseer_theme.dart';
 
 class StatusBadge extends StatelessWidget {
-  const StatusBadge({super.key, required this.call, this.compact = false});
+  const StatusBadge({
+    super.key,
+    required this.call,
+    this.compact = false,
+    this.heroTag,
+  });
+
   final SamseerHttpCall call;
   final bool compact;
+  final String? heroTag;
 
   @override
   Widget build(BuildContext context) {
@@ -16,12 +23,23 @@ class StatusBadge extends StatelessWidget {
       SamseerCallState.error => 'ERR',
       _ => '${call.status ?? '—'}',
     };
-    return Container(
+    final isLoading = call.state == SamseerCallState.loading;
+
+    Widget badge = Container(
       padding: EdgeInsets.symmetric(horizontal: compact ? 6 : 8, vertical: compact ? 2 : 4),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.16),
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: color.withValues(alpha: 0.4), width: 1),
+        borderRadius: BorderRadius.circular(7),
+        border: Border.all(color: color.withValues(alpha: 0.45), width: 1),
+        boxShadow: isLoading
+            ? null
+            : [
+                BoxShadow(
+                  color: color.withValues(alpha: 0.18),
+                  blurRadius: 6,
+                  offset: const Offset(0, 1),
+                ),
+              ],
       ),
       child: Text(
         label,
@@ -33,6 +51,56 @@ class StatusBadge extends StatelessWidget {
           letterSpacing: 0.3,
         ),
       ),
+    );
+
+    if (isLoading) {
+      badge = _PulsingBadge(child: badge);
+    }
+    if (heroTag != null) {
+      badge = Hero(tag: heroTag!, child: Material(color: Colors.transparent, child: badge));
+    }
+    return badge;
+  }
+}
+
+class _PulsingBadge extends StatefulWidget {
+  const _PulsingBadge({required this.child});
+  final Widget child;
+
+  @override
+  State<_PulsingBadge> createState() => _PulsingBadgeState();
+}
+
+class _PulsingBadgeState extends State<_PulsingBadge>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1100),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return Opacity(
+          opacity: 0.55 + 0.45 * _controller.value,
+          child: child,
+        );
+      },
+      child: widget.child,
     );
   }
 }

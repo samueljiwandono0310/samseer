@@ -1,9 +1,9 @@
 name: samseer
 description: "Beautiful HTTP inspector for Flutter — a modern, all-in-one alternative to Alice with Material 3 UI, multi-client support (Dio, http, HttpClient), shake-to-open, and rich call details."
 version: 0.1.0
-homepage: https://github.com/samueljiwandono/samseer
-repository: https://github.com/samueljiwandono/samseer
-issue_tracker: https://github.com/samueljiwandono/samseer/issues
+homepage: https://github.com/samueljiwandono0310/samseer
+repository: https://github.com/samueljiwandono0310/samseer
+issue_tracker: https://github.com/samueljiwandono0310/samseer/issues
 
 topics:
   - http

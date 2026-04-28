@@ -78,6 +78,10 @@ class SamseerTheme {
         side: BorderSide.none,
         labelStyle: baseText.labelMedium,
         showCheckmark: false,
+        elevation: 0,
+        pressElevation: 0,
+        shadowColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
       ),
       tabBarTheme: TabBarThemeData(
         labelColor: colorScheme.primary,

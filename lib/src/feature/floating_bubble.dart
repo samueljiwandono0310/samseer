@@ -36,21 +36,27 @@ class _SamseerOverlayState extends State<SamseerOverlay> {
     return Stack(
       children: [
         widget.child,
-        Positioned(
-          left: _offset.dx,
-          top: _offset.dy,
-          child: GestureDetector(
-            onPanUpdate: (d) => setState(() => _offset += d.delta),
-            onTap: widget.core.openInspector,
-            child: StreamBuilder<List<SamseerHttpCall>>(
-              stream: widget.core.storage.stream,
-              initialData: widget.core.storage.calls,
-              builder: (context, snap) {
-                final count = snap.data?.length ?? 0;
-                return _Bubble(count: count);
-              },
-            ),
-          ),
+        ValueListenableBuilder<bool>(
+          valueListenable: widget.core.inspectorOpen,
+          builder: (context, isOpen, _) {
+            if (isOpen) return const SizedBox.shrink();
+            return Positioned(
+              left: _offset.dx,
+              top: _offset.dy,
+              child: GestureDetector(
+                onPanUpdate: (d) => setState(() => _offset += d.delta),
+                onTap: widget.core.openInspector,
+                child: StreamBuilder<List<SamseerHttpCall>>(
+                  stream: widget.core.storage.stream,
+                  initialData: widget.core.storage.calls,
+                  builder: (context, snap) {
+                    final count = snap.data?.length ?? 0;
+                    return _Bubble(count: count);
+                  },
+                ),
+              ),
+            );
+          },
         ),
       ],
     );

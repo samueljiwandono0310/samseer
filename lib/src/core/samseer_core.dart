@@ -31,6 +31,11 @@ class SamseerCore {
   final GlobalKey<NavigatorState> navigatorKey =
       GlobalKey<NavigatorState>(debugLabel: 'samseer.navigatorKey');
 
+  /// True while any samseer screen is on top of the navigator stack.
+  /// UI overlays (e.g. floating bubble) can listen to this to hide
+  /// themselves while the user is already inside the inspector.
+  final ValueNotifier<bool> inspectorOpen = ValueNotifier<bool>(false);
+
   int _idSeed = 0;
   int nextId() => ++_idSeed;
 
@@ -45,31 +50,41 @@ class SamseerCore {
   /// Open the inspector. Requires that [navigatorKey] is attached to the
   /// host [MaterialApp.navigatorKey].
   Future<void> openInspector() async {
+    if (inspectorOpen.value) return;
     final state = navigatorKey.currentState;
     if (state == null) return;
-    final context = state.context;
-    final isAlreadyOpen = ModalRoute.of(context)?.settings.name == kCallListRoute;
-    if (isAlreadyOpen) return;
-    await state.push(
-      MaterialPageRoute<void>(
-        settings: const RouteSettings(name: kCallListRoute),
-        builder: (_) => CallListScreen(core: this),
-      ),
-    );
+    inspectorOpen.value = true;
+    try {
+      await state.push(
+        MaterialPageRoute<void>(
+          settings: const RouteSettings(name: kCallListRoute),
+          builder: (_) => CallListScreen(core: this),
+        ),
+      );
+    } finally {
+      inspectorOpen.value = false;
+    }
   }
 
   /// Open the inspector against a known [BuildContext].
-  Future<void> openInspectorFromContext(BuildContext context) {
-    return Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        settings: const RouteSettings(name: kCallListRoute),
-        builder: (_) => CallListScreen(core: this),
-      ),
-    );
+  Future<void> openInspectorFromContext(BuildContext context) async {
+    if (inspectorOpen.value) return;
+    inspectorOpen.value = true;
+    try {
+      await Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          settings: const RouteSettings(name: kCallListRoute),
+          builder: (_) => CallListScreen(core: this),
+        ),
+      );
+    } finally {
+      inspectorOpen.value = false;
+    }
   }
 
   void dispose() {
     _shakeDetector?.stop();
+    inspectorOpen.dispose();
     storage.dispose();
   }
 }

@@ -86,13 +86,16 @@ class _CallListScreenState extends State<CallListScreen> {
                       padding: const EdgeInsets.fromLTRB(12, 4, 12, 16),
                       itemCount: calls.length,
                       separatorBuilder: (_, __) => const SizedBox(height: 8),
-                      itemBuilder: (context, i) => CallTile(
-                        call: calls[i],
-                        onTap: () => Navigator.of(context).push(
-                          MaterialPageRoute<void>(
-                            builder: (_) => CallDetailScreen(
-                              core: widget.core,
-                              callId: calls[i].id,
+                      itemBuilder: (context, i) => _AnimatedTile(
+                        key: ValueKey(calls[i].id),
+                        child: CallTile(
+                          call: calls[i],
+                          onTap: () => Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                              builder: (_) => CallDetailScreen(
+                                core: widget.core,
+                                callId: calls[i].id,
+                              ),
                             ),
                           ),
                         ),
@@ -141,6 +144,48 @@ class _CallListScreenState extends State<CallListScreen> {
       case 'clear':
         widget.core.storage.clear();
     }
+  }
+}
+
+class _AnimatedTile extends StatefulWidget {
+  const _AnimatedTile({super.key, required this.child});
+  final Widget child;
+
+  @override
+  State<_AnimatedTile> createState() => _AnimatedTileState();
+}
+
+class _AnimatedTileState extends State<_AnimatedTile>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _fade;
+  late final Animation<Offset> _slide;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 280),
+    );
+    final curve = CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic);
+    _fade = Tween<double>(begin: 0, end: 1).animate(curve);
+    _slide = Tween<Offset>(begin: const Offset(0, 0.06), end: Offset.zero).animate(curve);
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: _fade,
+      child: SlideTransition(position: _slide, child: widget.child),
+    );
   }
 }
 
