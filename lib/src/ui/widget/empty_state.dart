@@ -22,12 +22,16 @@ class EmptyState extends StatelessWidget {
                 color: cs.primary.withValues(alpha: 0.08),
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon ?? Icons.inbox_outlined, color: cs.primary, size: 40),
+              child: Icon(icon ?? Icons.inbox_outlined,
+                  color: cs.primary, size: 40),
             ),
             const SizedBox(height: 16),
             Text(
               title,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+              style: Theme.of(context)
+                  .textTheme
+                  .titleMedium
+                  ?.copyWith(fontWeight: FontWeight.w600),
               textAlign: TextAlign.center,
             ),
             if (subtitle != null) ...[

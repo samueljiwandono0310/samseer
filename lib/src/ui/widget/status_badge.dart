@@ -26,7 +26,8 @@ class StatusBadge extends StatelessWidget {
     final isLoading = call.state == SamseerCallState.loading;
 
     Widget badge = Container(
-      padding: EdgeInsets.symmetric(horizontal: compact ? 6 : 8, vertical: compact ? 2 : 4),
+      padding: EdgeInsets.symmetric(
+          horizontal: compact ? 6 : 8, vertical: compact ? 2 : 4),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.16),
         borderRadius: BorderRadius.circular(7),
@@ -57,7 +58,9 @@ class StatusBadge extends StatelessWidget {
       badge = _PulsingBadge(child: badge);
     }
     if (heroTag != null) {
-      badge = Hero(tag: heroTag!, child: Material(color: Colors.transparent, child: badge));
+      badge = Hero(
+          tag: heroTag!,
+          child: Material(color: Colors.transparent, child: badge));
     }
     return badge;
   }

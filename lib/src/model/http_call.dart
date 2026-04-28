@@ -4,7 +4,14 @@ import 'http_error.dart';
 import 'http_request.dart';
 import 'http_response.dart';
 
-enum SamseerCallState { loading, success, redirect, clientError, serverError, error }
+enum SamseerCallState {
+  loading,
+  success,
+  redirect,
+  clientError,
+  serverError,
+  error
+}
 
 @immutable
 class SamseerHttpCall {

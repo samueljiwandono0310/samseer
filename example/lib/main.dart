@@ -66,11 +66,13 @@ class Home extends StatelessWidget {
           _Section(title: 'Dio', children: [
             _Tile(
               label: 'GET /posts',
-              onTap: () => dio.get('https://jsonplaceholder.typicode.com/posts'),
+              onTap: () =>
+                  dio.get('https://jsonplaceholder.typicode.com/posts'),
             ),
             _Tile(
               label: 'GET /posts/1',
-              onTap: () => dio.get('https://jsonplaceholder.typicode.com/posts/1'),
+              onTap: () =>
+                  dio.get('https://jsonplaceholder.typicode.com/posts/1'),
             ),
             _Tile(
               label: 'POST /posts',
@@ -91,8 +93,8 @@ class Home extends StatelessWidget {
           _Section(title: 'http package', children: [
             _Tile(
               label: 'GET /todos/1',
-              onTap: () => httpClient
-                  .get(Uri.parse('https://jsonplaceholder.typicode.com/todos/1')),
+              onTap: () => httpClient.get(
+                  Uri.parse('https://jsonplaceholder.typicode.com/todos/1')),
             ),
             _Tile(
               label: 'POST /posts',

@@ -27,7 +27,8 @@ class CallTile extends StatelessWidget {
             end: Alignment.bottomRight,
             colors: [
               cs.surfaceContainerHigh,
-              Color.alphaBlend(accent.withValues(alpha: 0.04), cs.surfaceContainerHigh),
+              Color.alphaBlend(
+                  accent.withValues(alpha: 0.04), cs.surfaceContainerHigh),
             ],
           ),
           border: Border.all(
@@ -72,7 +73,8 @@ class CallTile extends StatelessWidget {
                       children: [
                         MethodBadge(method: call.method),
                         const SizedBox(width: 6),
-                        StatusBadge(call: call, heroTag: 'samseer.status.${call.id}'),
+                        StatusBadge(
+                            call: call, heroTag: 'samseer.status.${call.id}'),
                         const Spacer(),
                         Text(
                           time,
@@ -98,16 +100,21 @@ class CallTile extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(
                       call.server,
-                      style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12),
+                      style:
+                          TextStyle(color: cs.onSurfaceVariant, fontSize: 12),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 8),
                     Row(
                       children: [
-                        _Pill(icon: Icons.timer_outlined, label: _formatDuration(call.duration)),
+                        _Pill(
+                            icon: Icons.timer_outlined,
+                            label: _formatDuration(call.duration)),
                         const SizedBox(width: 6),
-                        _Pill(icon: Icons.cloud_download_outlined, label: _formatBytes(call.response?.size)),
+                        _Pill(
+                            icon: Icons.cloud_download_outlined,
+                            label: _formatBytes(call.response?.size)),
                         const SizedBox(width: 6),
                         _Pill(icon: Icons.api_outlined, label: call.client),
                       ],

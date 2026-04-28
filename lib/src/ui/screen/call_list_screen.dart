@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../core/samseer_core.dart';
 import '../../feature/exporter.dart';
@@ -6,6 +7,7 @@ import '../../model/http_call.dart';
 import '../theme/samseer_theme.dart';
 import '../widget/call_tile.dart';
 import '../widget/empty_state.dart';
+import '../widget/samseer_toast.dart';
 import 'call_detail_screen.dart';
 import 'stats_screen.dart';
 
@@ -50,15 +52,13 @@ class _CallListScreenState extends State<CallListScreen> {
                   ),
                 ),
               ),
-              Builder(
-                builder: (btnContext) => PopupMenuButton<String>(
-                  icon: const Icon(Icons.more_vert),
-                  onSelected: (value) => _onMenu(value, btnContext),
-                  itemBuilder: (_) => const [
-                    PopupMenuItem(value: 'export', child: Text('Export & Share')),
-                    PopupMenuItem(value: 'clear', child: Text('Clear All')),
-                  ],
-                ),
+              PopupMenuButton<String>(
+                icon: const Icon(Icons.more_vert),
+                onSelected: _onMenu,
+                itemBuilder: (_) => const [
+                  PopupMenuItem(value: 'export', child: Text('Copy as JSON')),
+                  PopupMenuItem(value: 'clear', child: Text('Clear All')),
+                ],
               ),
             ],
           ),
@@ -78,7 +78,8 @@ class _CallListScreenState extends State<CallListScreen> {
                     if (calls.isEmpty) {
                       return const EmptyState(
                         title: 'No HTTP calls yet',
-                        subtitle: 'Make a network request and it will show up here.',
+                        subtitle:
+                            'Make a network request and it will show up here.',
                         icon: Icons.travel_explore,
                       );
                     }
@@ -122,24 +123,48 @@ class _CallListScreenState extends State<CallListScreen> {
             (c.status?.toString().contains(q) ?? false);
       }).toList();
     }
-    result = result.where((c) => switch (_filter) {
-          _StatusFilter.all => true,
-          _StatusFilter.success => c.state == SamseerCallState.success,
-          _StatusFilter.redirect => c.state == SamseerCallState.redirect,
-          _StatusFilter.clientError => c.state == SamseerCallState.clientError,
-          _StatusFilter.serverError => c.state == SamseerCallState.serverError,
-          _StatusFilter.errors =>
-            c.state == SamseerCallState.error || c.hasError,
-        }).toList();
+    result = result
+        .where((c) => switch (_filter) {
+              _StatusFilter.all => true,
+              _StatusFilter.success => c.state == SamseerCallState.success,
+              _StatusFilter.redirect => c.state == SamseerCallState.redirect,
+              _StatusFilter.clientError =>
+                c.state == SamseerCallState.clientError,
+              _StatusFilter.serverError =>
+                c.state == SamseerCallState.serverError,
+              _StatusFilter.errors =>
+                c.state == SamseerCallState.error || c.hasError,
+            })
+        .toList();
     return result;
   }
 
-  Future<void> _onMenu(String value, BuildContext btnContext) async {
+  Future<void> _onMenu(String value) async {
     switch (value) {
       case 'export':
-        await Exporter.shareAsJson(
-          widget.core.storage.calls,
-          sharePositionOrigin: Exporter.originFor(btnContext),
+        final calls = widget.core.storage.calls;
+        if (calls.isEmpty) {
+          SamseerToast.show(
+            context,
+            'Nothing to export',
+            subtitle: 'No HTTP calls have been recorded yet.',
+            variant: SamseerToastVariant.warning,
+          );
+          return;
+        }
+        final json = Exporter.buildJsonExport(calls);
+        await Clipboard.setData(ClipboardData(text: json));
+        if (!mounted) return;
+        final size = Exporter.formatSize(json.length);
+        final large = json.length > 1024 * 1024;
+        SamseerToast.show(
+          context,
+          large ? 'Copied — large content ($size)' : 'JSON export copied',
+          subtitle: large
+              ? 'Some apps may truncate. ${calls.length} calls · $size'
+              : '${calls.length} calls · $size',
+          variant:
+              large ? SamseerToastVariant.warning : SamseerToastVariant.success,
         );
       case 'clear':
         widget.core.storage.clear();
@@ -168,9 +193,11 @@ class _AnimatedTileState extends State<_AnimatedTile>
       vsync: this,
       duration: const Duration(milliseconds: 280),
     );
-    final curve = CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic);
+    final curve =
+        CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic);
     _fade = Tween<double>(begin: 0, end: 1).animate(curve);
-    _slide = Tween<Offset>(begin: const Offset(0, 0.06), end: Offset.zero).animate(curve);
+    _slide = Tween<Offset>(begin: const Offset(0, 0.06), end: Offset.zero)
+        .animate(curve);
     _controller.forward();
   }
 
@@ -225,6 +252,13 @@ class _FilterRow extends StatelessWidget {
           label: Text(label),
           selected: isSelected,
           onSelected: (_) => onSelected(f),
+          elevation: 0,
+          pressElevation: 0,
+          shadowColor: Colors.transparent,
+          selectedShadowColor: Colors.transparent,
+          surfaceTintColor: Colors.transparent,
+          side: BorderSide.none,
+          shape: const StadiumBorder(side: BorderSide.none),
           labelStyle: TextStyle(
             color: isSelected
                 ? Theme.of(context).colorScheme.onPrimary

@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import '../theme/samseer_theme.dart';
 
 class KeyValueTable extends StatelessWidget {
-  const KeyValueTable({super.key, required this.entries, this.emptyLabel = 'Empty'});
+  const KeyValueTable(
+      {super.key, required this.entries, this.emptyLabel = 'Empty'});
 
   final Map<String, dynamic> entries;
   final String emptyLabel;
@@ -15,7 +16,8 @@ class KeyValueTable extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Text(
           emptyLabel,
-          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+          style:
+              TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
         ),
       );
     }
@@ -57,7 +59,8 @@ class _Row extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           Expanded(
-            child: SelectableText(value, style: SamseerTheme.mono(context, size: 12)),
+            child: SelectableText(value,
+                style: SamseerTheme.mono(context, size: 12)),
           ),
         ],
       ),

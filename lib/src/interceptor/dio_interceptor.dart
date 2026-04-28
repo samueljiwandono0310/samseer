@@ -87,7 +87,8 @@ class SamseerDioInterceptor extends Interceptor {
     handler.next(err);
   }
 
-  static Map<String, dynamic> _flattenHeaders(Map<String, List<String>> headers) {
+  static Map<String, dynamic> _flattenHeaders(
+      Map<String, List<String>> headers) {
     return headers.map((k, v) => MapEntry(k, v.length == 1 ? v.first : v));
   }
 

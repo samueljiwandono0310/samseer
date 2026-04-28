@@ -95,11 +95,13 @@ class _Tree extends StatelessWidget {
         style: TextStyle(color: color.string),
       ));
     } else if (value is num) {
-      spans.add(TextSpan(text: '$value', style: TextStyle(color: color.number)));
+      spans
+          .add(TextSpan(text: '$value', style: TextStyle(color: color.number)));
     } else if (value is bool) {
       spans.add(TextSpan(text: '$value', style: TextStyle(color: color.bool)));
     } else if (value == null) {
-      spans.add(TextSpan(text: 'null', style: TextStyle(color: color.nullValue)));
+      spans.add(
+          TextSpan(text: 'null', style: TextStyle(color: color.nullValue)));
     } else {
       spans.add(TextSpan(text: value.toString()));
     }

@@ -8,6 +8,7 @@ import '../../model/http_call.dart';
 import '../theme/samseer_theme.dart';
 import '../widget/json_viewer.dart';
 import '../widget/key_value_table.dart';
+import '../widget/samseer_toast.dart';
 import '../widget/status_badge.dart';
 
 class CallDetailScreen extends StatelessWidget {
@@ -50,16 +51,6 @@ class CallDetailScreen extends StatelessWidget {
                   icon: const Icon(Icons.content_copy_outlined),
                   onPressed: () => _copyDump(context, call),
                 ),
-                Builder(
-                  builder: (btnContext) => IconButton(
-                    tooltip: 'Share request & response',
-                    icon: const Icon(Icons.ios_share),
-                    onPressed: () => Exporter.shareCallDump(
-                      call,
-                      sharePositionOrigin: Exporter.originFor(btnContext),
-                    ),
-                  ),
-                ),
               ],
               bottom: const TabBar(
                 tabs: [
@@ -85,10 +76,19 @@ class CallDetailScreen extends StatelessWidget {
   }
 
   Future<void> _copyDump(BuildContext context, SamseerHttpCall call) async {
-    await Clipboard.setData(ClipboardData(text: Exporter.buildCallDump(call)));
+    final dump = Exporter.buildCallDump(call);
+    await Clipboard.setData(ClipboardData(text: dump));
     if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Request & response copied to clipboard')),
+    final size = Exporter.formatSize(dump.length);
+    final large = dump.length > 1024 * 1024;
+    SamseerToast.show(
+      context,
+      large ? 'Copied — large content ($size)' : 'Copied to clipboard',
+      subtitle: large
+          ? 'Some apps may truncate. Consider saving to a file.'
+          : 'Request & response · $size',
+      variant:
+          large ? SamseerToastVariant.warning : SamseerToastVariant.success,
     );
   }
 }
@@ -156,8 +156,11 @@ class _OverviewTab extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.all(14),
               child: SelectableText(
-                call.error?.message ?? call.error?.error?.toString() ?? 'Unknown error',
-                style: SamseerTheme.mono(context, color: const Color(0xFFEF4444)),
+                call.error?.message ??
+                    call.error?.error?.toString() ??
+                    'Unknown error',
+                style:
+                    SamseerTheme.mono(context, color: const Color(0xFFEF4444)),
               ),
             ),
           ),
@@ -190,7 +193,8 @@ class _RequestTab extends StatelessWidget {
       children: [
         _Section(
           title: 'Headers',
-          child: KeyValueTable(entries: call.request.headers, emptyLabel: 'No headers'),
+          child: KeyValueTable(
+              entries: call.request.headers, emptyLabel: 'No headers'),
         ),
         _Section(
           title: 'Query Parameters',
@@ -206,7 +210,8 @@ class _RequestTab extends StatelessWidget {
             child: call.request.body == null
                 ? Text(
                     'No body',
-                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                    style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant),
                   )
                 : JsonViewer(value: call.request.body),
           ),
@@ -243,7 +248,8 @@ class _ResponseTab extends StatelessWidget {
       children: [
         _Section(
           title: 'Headers',
-          child: KeyValueTable(entries: response.headers, emptyLabel: 'No headers'),
+          child: KeyValueTable(
+              entries: response.headers, emptyLabel: 'No headers'),
         ),
         _Section(
           title: 'Body',
@@ -252,7 +258,8 @@ class _ResponseTab extends StatelessWidget {
             child: response.body == null
                 ? Text(
                     'No body',
-                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                    style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant),
                   )
                 : JsonViewer(value: response.body),
           ),
@@ -285,31 +292,19 @@ class _CurlTab extends StatelessWidget {
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            children: [
-              FilledButton.icon(
-                icon: const Icon(Icons.copy),
-                label: const Text('Copy'),
-                onPressed: () async {
-                  await Clipboard.setData(ClipboardData(text: curl));
-                  if (!context.mounted) return;
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Copied')),
-                  );
-                },
-              ),
-              const SizedBox(width: 8),
-              Builder(
-                builder: (btnContext) => OutlinedButton.icon(
-                  icon: const Icon(Icons.share),
-                  label: const Text('Share'),
-                  onPressed: () => Exporter.shareCurl(
-                    call,
-                    sharePositionOrigin: Exporter.originFor(btnContext),
-                  ),
-                ),
-              ),
-            ],
+          child: FilledButton.icon(
+            icon: const Icon(Icons.copy),
+            label: const Text('Copy cURL'),
+            onPressed: () async {
+              await Clipboard.setData(ClipboardData(text: curl));
+              if (!context.mounted) return;
+              SamseerToast.show(
+                context,
+                'cURL copied',
+                subtitle: Exporter.formatSize(curl.length),
+                variant: SamseerToastVariant.success,
+              );
+            },
           ),
         ),
       ],

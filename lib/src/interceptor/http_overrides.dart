@@ -75,54 +75,60 @@ class _RecordingHttpClient implements HttpClient {
       _wrap(() => _inner.openUrl(method, url), method, url);
 
   @override
-  Future<HttpClientRequest> get(String host, int port, String path) =>
-      _wrap(() => _inner.get(host, port, path), 'GET',
-          Uri(scheme: 'http', host: host, port: port, path: path));
+  Future<HttpClientRequest> get(String host, int port, String path) => _wrap(
+      () => _inner.get(host, port, path),
+      'GET',
+      Uri(scheme: 'http', host: host, port: port, path: path));
 
   @override
   Future<HttpClientRequest> getUrl(Uri url) =>
       _wrap(() => _inner.getUrl(url), 'GET', url);
 
   @override
-  Future<HttpClientRequest> post(String host, int port, String path) =>
-      _wrap(() => _inner.post(host, port, path), 'POST',
-          Uri(scheme: 'http', host: host, port: port, path: path));
+  Future<HttpClientRequest> post(String host, int port, String path) => _wrap(
+      () => _inner.post(host, port, path),
+      'POST',
+      Uri(scheme: 'http', host: host, port: port, path: path));
 
   @override
   Future<HttpClientRequest> postUrl(Uri url) =>
       _wrap(() => _inner.postUrl(url), 'POST', url);
 
   @override
-  Future<HttpClientRequest> put(String host, int port, String path) =>
-      _wrap(() => _inner.put(host, port, path), 'PUT',
-          Uri(scheme: 'http', host: host, port: port, path: path));
+  Future<HttpClientRequest> put(String host, int port, String path) => _wrap(
+      () => _inner.put(host, port, path),
+      'PUT',
+      Uri(scheme: 'http', host: host, port: port, path: path));
 
   @override
   Future<HttpClientRequest> putUrl(Uri url) =>
       _wrap(() => _inner.putUrl(url), 'PUT', url);
 
   @override
-  Future<HttpClientRequest> delete(String host, int port, String path) =>
-      _wrap(() => _inner.delete(host, port, path), 'DELETE',
-          Uri(scheme: 'http', host: host, port: port, path: path));
+  Future<HttpClientRequest> delete(String host, int port, String path) => _wrap(
+      () => _inner.delete(host, port, path),
+      'DELETE',
+      Uri(scheme: 'http', host: host, port: port, path: path));
 
   @override
   Future<HttpClientRequest> deleteUrl(Uri url) =>
       _wrap(() => _inner.deleteUrl(url), 'DELETE', url);
 
   @override
-  Future<HttpClientRequest> head(String host, int port, String path) =>
-      _wrap(() => _inner.head(host, port, path), 'HEAD',
-          Uri(scheme: 'http', host: host, port: port, path: path));
+  Future<HttpClientRequest> head(String host, int port, String path) => _wrap(
+      () => _inner.head(host, port, path),
+      'HEAD',
+      Uri(scheme: 'http', host: host, port: port, path: path));
 
   @override
   Future<HttpClientRequest> headUrl(Uri url) =>
       _wrap(() => _inner.headUrl(url), 'HEAD', url);
 
   @override
-  Future<HttpClientRequest> patch(String host, int port, String path) =>
-      _wrap(() => _inner.patch(host, port, path), 'PATCH',
-          Uri(scheme: 'http', host: host, port: port, path: path));
+  Future<HttpClientRequest> patch(String host, int port, String path) => _wrap(
+      () => _inner.patch(host, port, path),
+      'PATCH',
+      Uri(scheme: 'http', host: host, port: port, path: path));
 
   @override
   Future<HttpClientRequest> patchUrl(Uri url) =>
@@ -156,7 +162,8 @@ class _RecordingHttpClient implements HttpClient {
   set userAgent(String? value) => _inner.userAgent = value;
 
   @override
-  void addCredentials(Uri url, String realm, HttpClientCredentials credentials) =>
+  void addCredentials(
+          Uri url, String realm, HttpClientCredentials credentials) =>
       _inner.addCredentials(url, realm, credentials);
 
   @override
@@ -227,7 +234,8 @@ class _RecordingHttpClientRequest implements HttpClientRequest {
             sink.add(data);
           },
           handleDone: (sink) {
-            final body = _safeDecode(bytes, response.headers.contentType?.toString());
+            final body =
+                _safeDecode(bytes, response.headers.contentType?.toString());
             _core.addResponse(
               _id,
               SamseerHttpResponse(
@@ -246,7 +254,8 @@ class _RecordingHttpClientRequest implements HttpClientRequest {
     } catch (error, stack) {
       _core.addError(
         _id,
-        SamseerHttpError(message: error.toString(), error: error, stackTrace: stack),
+        SamseerHttpError(
+            message: error.toString(), error: error, stackTrace: stack),
       );
       rethrow;
     }

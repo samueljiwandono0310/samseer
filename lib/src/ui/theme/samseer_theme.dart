@@ -44,7 +44,9 @@ class SamseerTheme {
     );
 
     final baseText = GoogleFonts.poppinsTextTheme(
-      brightness == Brightness.dark ? ThemeData.dark().textTheme : ThemeData.light().textTheme,
+      brightness == Brightness.dark
+          ? ThemeData.dark().textTheme
+          : ThemeData.light().textTheme,
     );
 
     return ThemeData(
@@ -81,7 +83,9 @@ class SamseerTheme {
         elevation: 0,
         pressElevation: 0,
         shadowColor: Colors.transparent,
+        selectedShadowColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
+        shape: const StadiumBorder(side: BorderSide.none),
       ),
       tabBarTheme: TabBarThemeData(
         labelColor: colorScheme.primary,
@@ -111,7 +115,8 @@ class SamseerTheme {
     );
   }
 
-  static TextStyle mono(BuildContext context, {double size = 13, FontWeight? weight, Color? color}) {
+  static TextStyle mono(BuildContext context,
+      {double size = 13, FontWeight? weight, Color? color}) {
     return GoogleFonts.jetBrainsMono(
       fontSize: size,
       fontWeight: weight ?? FontWeight.w400,
