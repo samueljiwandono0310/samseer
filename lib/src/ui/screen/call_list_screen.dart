@@ -1,0 +1,209 @@
+import 'package:flutter/material.dart';
+
+import '../../core/samseer_core.dart';
+import '../../feature/exporter.dart';
+import '../../model/http_call.dart';
+import '../theme/samseer_theme.dart';
+import '../widget/call_tile.dart';
+import '../widget/empty_state.dart';
+import 'call_detail_screen.dart';
+import 'stats_screen.dart';
+
+enum _StatusFilter { all, success, redirect, clientError, serverError, errors }
+
+class CallListScreen extends StatefulWidget {
+  const CallListScreen({super.key, required this.core});
+  final SamseerCore core;
+
+  @override
+  State<CallListScreen> createState() => _CallListScreenState();
+}
+
+class _CallListScreenState extends State<CallListScreen> {
+  String _query = '';
+  _StatusFilter _filter = _StatusFilter.all;
+
+  @override
+  Widget build(BuildContext context) {
+    final config = widget.core.configuration;
+    return Theme(
+      data: switch (config.themeMode) {
+        ThemeMode.light => SamseerTheme.light(),
+        ThemeMode.dark => SamseerTheme.dark(),
+        ThemeMode.system =>
+          MediaQuery.platformBrightnessOf(context) == Brightness.dark
+              ? SamseerTheme.dark()
+              : SamseerTheme.light(),
+      },
+      child: Directionality(
+        textDirection: config.directionality ?? Directionality.of(context),
+        child: Scaffold(
+          appBar: AppBar(
+            title: const Text('Samseer'),
+            actions: [
+              IconButton(
+                tooltip: 'Stats',
+                icon: const Icon(Icons.insights_outlined),
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => StatsScreen(core: widget.core),
+                  ),
+                ),
+              ),
+              Builder(
+                builder: (btnContext) => PopupMenuButton<String>(
+                  icon: const Icon(Icons.more_vert),
+                  onSelected: (value) => _onMenu(value, btnContext),
+                  itemBuilder: (_) => const [
+                    PopupMenuItem(value: 'export', child: Text('Export & Share')),
+                    PopupMenuItem(value: 'clear', child: Text('Clear All')),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          body: Column(
+            children: [
+              _SearchBar(onChanged: (v) => setState(() => _query = v)),
+              _FilterRow(
+                selected: _filter,
+                onSelected: (f) => setState(() => _filter = f),
+              ),
+              Expanded(
+                child: StreamBuilder<List<SamseerHttpCall>>(
+                  stream: widget.core.storage.stream,
+                  initialData: widget.core.storage.calls,
+                  builder: (context, snap) {
+                    final calls = _apply(snap.data ?? const []);
+                    if (calls.isEmpty) {
+                      return const EmptyState(
+                        title: 'No HTTP calls yet',
+                        subtitle: 'Make a network request and it will show up here.',
+                        icon: Icons.travel_explore,
+                      );
+                    }
+                    return ListView.separated(
+                      padding: const EdgeInsets.fromLTRB(12, 4, 12, 16),
+                      itemCount: calls.length,
+                      separatorBuilder: (_, __) => const SizedBox(height: 8),
+                      itemBuilder: (context, i) => CallTile(
+                        call: calls[i],
+                        onTap: () => Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (_) => CallDetailScreen(
+                              core: widget.core,
+                              callId: calls[i].id,
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  List<SamseerHttpCall> _apply(List<SamseerHttpCall> input) {
+    var result = input;
+    final q = _query.trim().toLowerCase();
+    if (q.isNotEmpty) {
+      result = result.where((c) {
+        return c.uri.toLowerCase().contains(q) ||
+            c.endpoint.toLowerCase().contains(q) ||
+            c.method.toLowerCase().contains(q) ||
+            (c.status?.toString().contains(q) ?? false);
+      }).toList();
+    }
+    result = result.where((c) => switch (_filter) {
+          _StatusFilter.all => true,
+          _StatusFilter.success => c.state == SamseerCallState.success,
+          _StatusFilter.redirect => c.state == SamseerCallState.redirect,
+          _StatusFilter.clientError => c.state == SamseerCallState.clientError,
+          _StatusFilter.serverError => c.state == SamseerCallState.serverError,
+          _StatusFilter.errors =>
+            c.state == SamseerCallState.error || c.hasError,
+        }).toList();
+    return result;
+  }
+
+  Future<void> _onMenu(String value, BuildContext btnContext) async {
+    switch (value) {
+      case 'export':
+        await Exporter.shareAsJson(
+          widget.core.storage.calls,
+          sharePositionOrigin: Exporter.originFor(btnContext),
+        );
+      case 'clear':
+        widget.core.storage.clear();
+    }
+  }
+}
+
+class _SearchBar extends StatelessWidget {
+  const _SearchBar({required this.onChanged});
+  final ValueChanged<String> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 4, 12, 8),
+      child: TextField(
+        onChanged: onChanged,
+        textInputAction: TextInputAction.search,
+        decoration: const InputDecoration(
+          hintText: 'Search by URL, method, status…',
+          prefixIcon: Icon(Icons.search),
+          isDense: true,
+        ),
+      ),
+    );
+  }
+}
+
+class _FilterRow extends StatelessWidget {
+  const _FilterRow({required this.selected, required this.onSelected});
+  final _StatusFilter selected;
+  final ValueChanged<_StatusFilter> onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    Widget chip(_StatusFilter f, String label) {
+      final isSelected = selected == f;
+      return Padding(
+        padding: const EdgeInsets.only(right: 6),
+        child: ChoiceChip(
+          label: Text(label),
+          selected: isSelected,
+          onSelected: (_) => onSelected(f),
+          labelStyle: TextStyle(
+            color: isSelected
+                ? Theme.of(context).colorScheme.onPrimary
+                : Theme.of(context).colorScheme.onSurfaceVariant,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      );
+    }
+
+    return SizedBox(
+      height: 40,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        children: [
+          chip(_StatusFilter.all, 'All'),
+          chip(_StatusFilter.success, '2xx'),
+          chip(_StatusFilter.redirect, '3xx'),
+          chip(_StatusFilter.clientError, '4xx'),
+          chip(_StatusFilter.serverError, '5xx'),
+          chip(_StatusFilter.errors, 'Errors'),
+        ],
+      ),
+    );
+  }
+}
