@@ -1,3 +1,11 @@
+## 0.2.1
+
+* Docs: new "Notifications (optional)" section in the README showing how to
+  bridge `samseer.callsStream` into `flutter_local_notifications` (or any
+  notification stack) — Samseer itself stays dependency-free
+* Example: added `SamseerNotificationBridge` and wired it into the example
+  app so users can copy a working reference end-to-end
+
 ## 0.2.0
 
 * New: top-of-screen `SamseerToast` notification with slide-down animation,

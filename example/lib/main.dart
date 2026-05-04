@@ -2,14 +2,21 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:http/http.dart' as http;
 import 'package:samseer/samseer.dart';
+
+import 'samseer_notification_bridge.dart';
 
 late final Samseer samseer;
 late final Dio dio;
 late final http.Client httpClient;
+late final FlutterLocalNotificationsPlugin notifications;
+late final SamseerNotificationBridge samseerNotifications;
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
   samseer = Samseer(
     configuration: const SamseerConfiguration(
       showInspectorOnShake: true,
@@ -19,6 +26,26 @@ void main() {
   dio = Dio()..interceptors.add(samseer.dioInterceptor);
   httpClient = samseer.httpClient();
   HttpOverrides.global = samseer.httpOverrides;
+
+  notifications = FlutterLocalNotificationsPlugin();
+  samseerNotifications = SamseerNotificationBridge(
+    samseer: samseer,
+    plugin: notifications,
+  );
+
+  await notifications.initialize(
+    const InitializationSettings(
+      android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+      iOS: DarwinInitializationSettings(
+        requestAlertPermission: true,
+        requestBadgePermission: true,
+        requestSoundPermission: true,
+      ),
+    ),
+    onDidReceiveNotificationResponse: samseerNotifications.handleTap,
+  );
+
+  samseerNotifications.start();
 
   runApp(const ExampleApp());
 }

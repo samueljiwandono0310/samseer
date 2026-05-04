@@ -134,6 +134,99 @@ You can use all three integrations simultaneously. Samseer assigns a fresh ID pe
 
 ---
 
+## 🔔 Notifications (optional)
+
+Want to be pinged on every HTTP call without leaving your screen? Samseer exposes `samseer.callsStream` so you can drive **any** notification system you already use. The example below uses [`flutter_local_notifications`](https://pub.dev/packages/flutter_local_notifications), but the same pattern works with Firebase Messaging, Awesome Notifications, or your own in-app banner.
+
+> Samseer does **not** depend on `flutter_local_notifications` — you stay in control of the notification stack.
+
+A minimal bridge:
+
+```dart
+import 'dart:async';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:samseer/samseer.dart';
+
+class SamseerNotificationBridge {
+  SamseerNotificationBridge({required this.samseer, required this.plugin});
+  final Samseer samseer;
+  final FlutterLocalNotificationsPlugin plugin;
+
+  static const int _id = 9999;
+  final Set<int> _seen = {};
+  StreamSubscription<List<SamseerHttpCall>>? _sub;
+
+  void start() {
+    for (final c in samseer.calls) {
+      if (!c.loading) _seen.add(c.id);
+    }
+    _sub = samseer.callsStream.listen((calls) {
+      for (final c in calls) {
+        if (!c.loading && _seen.add(c.id)) _emit(c);
+      }
+      _seen.retainAll(calls.map((c) => c.id).toSet());
+    });
+  }
+
+  bool handleTap(NotificationResponse r) {
+    if (r.id != _id) return false;
+    samseer.showInspector();
+    return true;
+  }
+
+  void _emit(SamseerHttpCall c) {
+    final status = c.status?.toString() ?? (c.hasError ? 'ERR' : '-');
+    plugin.show(
+      _id,
+      '[${c.method}] $status ${c.endpoint.isEmpty ? c.uri : c.endpoint}',
+      c.error?.message ?? c.uri,
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'samseer', 'Samseer HTTP calls',
+          importance: Importance.max, priority: Priority.high,
+        ),
+        iOS: DarwinNotificationDetails(presentAlert: true, presentBanner: true),
+      ),
+    );
+  }
+
+  Future<void> dispose() async => _sub?.cancel();
+}
+```
+
+Wire it up at startup:
+
+```dart
+final notifications = FlutterLocalNotificationsPlugin();
+final bridge = SamseerNotificationBridge(samseer: samseer, plugin: notifications);
+
+await notifications.initialize(
+  const InitializationSettings(
+    android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+    iOS: DarwinInitializationSettings(
+      requestAlertPermission: true,
+      requestBadgePermission: true,
+      requestSoundPermission: true,
+    ),
+  ),
+  onDidReceiveNotificationResponse: bridge.handleTap,
+);
+
+bridge.start();
+```
+
+Why this design?
+
+- **Reuses one notification id** (`9999`) so the system replaces the previous notification — your tray doesn't fill up after a chatty screen.
+- **Marks existing calls as already-notified** in `start()`, so re-attaching the bridge after a hot-reload doesn't spam you with a backlog.
+- **`handleTap` returns `bool`**, so you can chain it with your own notification handlers — return `true` only if it was Samseer's, otherwise fall through.
+
+A complete, runnable version lives in [`example/lib/samseer_notification_bridge.dart`](example/lib/samseer_notification_bridge.dart).
+
+> 💡 Heads up: on Android 13+ you'll need the `POST_NOTIFICATIONS` runtime permission, and on iOS the system asks the user the first time the plugin initializes. Keep this integration **debug-only** — guard it behind `kDebugMode` or a flavor flag so it never ships in production.
+
+---
+
 ## ⚙️ Configuration
 
 ```dart
