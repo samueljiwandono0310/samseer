@@ -28,6 +28,7 @@ If you've used [Alice](https://pub.dev/packages/alice) or [Chuck](https://github
 
 - 🎨 **Material 3 UI** with light & dark themes that follow the host app
 - 🔌 **Three HTTP clients out of the box** — Dio, `http`, `dart:io HttpClient` — no extra packages
+- 🌐 **WebView traffic too** — drop-in JS interceptor for XHR/`fetch` inside `flutter_inappwebview`, no extra dep on Samseer's side
 - 🔍 **Powerful call list** with live search, status & method filters
 - 📑 **Tabbed call detail** — Overview · Request · Response · cURL
 - 🌈 **Syntax-highlighted JSON viewer** built in
@@ -224,6 +225,67 @@ Why this design?
 A complete, runnable version lives in [`example/lib/samseer_notification_bridge.dart`](example/lib/samseer_notification_bridge.dart).
 
 > 💡 Heads up: on Android 13+ you'll need the `POST_NOTIFICATIONS` runtime permission, and on iOS the system asks the user the first time the plugin initializes. Keep this integration **debug-only** — guard it behind `kDebugMode` or a flavor flag so it never ships in production.
+
+---
+
+## 🌐 WebView inspector (optional)
+
+Want to inspect XHR and `fetch` calls happening **inside a WebView page** — the way Chrome DevTools' Network tab shows them? Samseer ships a self-contained JavaScript snippet plus a tiny Dart bridge so you can wire it into [`flutter_inappwebview`](https://pub.dev/packages/flutter_inappwebview) (or any WebView library that supports user scripts and JS-to-Dart channels).
+
+> Samseer does **not** depend on `flutter_inappwebview`. You bring your own WebView and pass two things across: the script and the handler.
+
+```dart
+import 'dart:collection';
+import 'package:flutter/material.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:samseer/samseer.dart';
+
+class MyWebViewPage extends StatelessWidget {
+  const MyWebViewPage({super.key, required this.samseer, required this.url});
+  final Samseer samseer;
+  final Uri url;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('WebView')),
+      body: InAppWebView(
+        initialUrlRequest: URLRequest(url: WebUri(url.toString())),
+        initialUserScripts: UnmodifiableListView<UserScript>([
+          UserScript(
+            source: webViewInterceptorScript,
+            injectionTime: UserScriptInjectionTime.AT_DOCUMENT_START,
+          ),
+        ]),
+        onWebViewCreated: (controller) {
+          controller.addJavaScriptHandler(
+            handlerName: 'samseer_webview',
+            callback: (args) {
+              if (args.isNotEmpty) samseer.recordWebViewEvent(args.first);
+            },
+          );
+        },
+      ),
+    );
+  }
+}
+```
+
+How it works:
+
+- `webViewInterceptorScript` is a string constant that monkey-patches `XMLHttpRequest` and `fetch` inside the page. Inject it at **document start** so it wraps the JS APIs before any application code runs.
+- Each request, response, and error is forwarded to the `samseer_webview` JavaScript handler. `samseer.recordWebViewEvent(args.first)` translates the payload into a regular Samseer call, indistinguishable from Dio/`http`/`HttpClient` entries (just labelled `client: WebView`).
+- Re-installation is idempotent — guarded internally by a `__samseer_installed` flag — so revisiting pages is safe.
+
+Limitations to know:
+
+- Only **XHR and `fetch`** are captured. Static resources (images, CSS, fonts) and main-frame navigation are not — those don't typically appear in DevTools' Fetch/XHR filter either.
+- Streaming / opaque responses (CORS `no-cors`, SSE) record with `body: null` — Samseer doesn't try to read past the headers in those cases.
+- Each response body is held in memory once before being forwarded; if your page downloads very large payloads, consider whether you want this active in production.
+
+> 💡 Like the notification bridge, treat this as a **debug-only** integration — guard the script injection behind `kDebugMode` or a build flavor so it doesn't ship in release builds.
+
+A complete, runnable demo lives in [`example/lib/samseer_webview_demo_page.dart`](example/lib/samseer_webview_demo_page.dart).
 
 ---
 

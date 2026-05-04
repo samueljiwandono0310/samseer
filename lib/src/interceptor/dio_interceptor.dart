@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 
 import '../core/samseer_core.dart';
@@ -19,6 +21,7 @@ class SamseerDioInterceptor extends Interceptor {
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     final id = _core.nextId();
     options.extra[_kSamseerIdKey] = id;
+    final body = _captureBody(options.data);
     final call = SamseerHttpCall(
       id: id,
       method: options.method.toUpperCase(),
@@ -32,9 +35,9 @@ class SamseerDioInterceptor extends Interceptor {
         time: DateTime.now(),
         headers: Map<String, dynamic>.from(options.headers),
         queryParameters: Map<String, dynamic>.from(options.queryParameters),
-        body: options.data,
+        body: body,
         contentType: options.contentType,
-        size: _estimateSize(options.data),
+        size: _estimateSize(body),
       ),
     );
     _core.addCall(call);
@@ -90,6 +93,22 @@ class SamseerDioInterceptor extends Interceptor {
   static Map<String, dynamic> _flattenHeaders(
       Map<String, List<String>> headers) {
     return headers.map((k, v) => MapEntry(k, v.length == 1 ? v.first : v));
+  }
+
+  /// Dio captures `options.data` as the raw value the caller passed — which
+  /// may be a custom Dart class (with a `toJson()`) that Dio's transformer
+  /// would normally serialize before sending. Without this round-trip, the
+  /// inspector would display the object's `toString()` instead of the JSON
+  /// actually sent on the wire.
+  static dynamic _captureBody(dynamic data) {
+    if (data == null) return null;
+    if (data is String || data is num || data is bool) return data;
+    if (data is Map || data is List) return data;
+    try {
+      return json.decode(json.encode(data));
+    } catch (_) {
+      return data.toString();
+    }
   }
 
   static int? _estimateSize(dynamic data) {

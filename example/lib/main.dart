@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:samseer/samseer.dart';
 
 import 'samseer_notification_bridge.dart';
+import 'samseer_webview_demo_page.dart';
 
 late final Samseer samseer;
 late final Dio dio;
@@ -143,6 +144,16 @@ class Home extends StatelessWidget {
                 final res = await req.close();
                 await res.drain<void>();
               },
+            ),
+          ]),
+          _Section(title: 'WebView (flutter_inappwebview)', children: [
+            _Tile(
+              label: 'Open WebView demo',
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => SamseerWebViewDemoPage(samseer: samseer),
+                ),
+              ),
             ),
           ]),
         ],

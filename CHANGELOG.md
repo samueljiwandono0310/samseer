@@ -1,3 +1,21 @@
+## 0.3.0
+
+* New: WebView inspector support — capture XHR and `fetch` calls happening
+  inside any WebView page (think Chrome DevTools' Network tab) by injecting
+  `webViewInterceptorScript` and forwarding events to
+  `samseer.recordWebViewEvent(...)`. Samseer itself does **not** depend on
+  `flutter_inappwebview`; the host app wires the script + JavaScript handler
+  to whichever WebView library it uses.
+* New: public recording API on `Samseer` — `recordRequest`, `recordResponse`,
+  `recordError` — so any custom transport (WebView, GraphQL, gRPC, …) can
+  feed calls into the inspector.
+
+## 0.2.2
+
+* Fix: Dio interceptor now serializes custom request body objects (classes
+  with `toJson()`) so the inspector shows the actual JSON sent on the wire
+  instead of the Dart object's `toString()`
+
 ## 0.2.1
 
 * Docs: new "Notifications (optional)" section in the README showing how to

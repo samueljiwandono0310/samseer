@@ -76,5 +76,97 @@ void main() {
       await Future<void>.delayed(Duration.zero);
       expect(emitted, contains(0));
     });
+
+    test('recordRequest / recordResponse round-trip', () {
+      final samseer = Samseer(
+        configuration: const SamseerConfiguration(showInspectorOnShake: false),
+      );
+      addTearDown(samseer.dispose);
+
+      final id = samseer.recordRequest(
+        method: 'post',
+        uri: 'https://api.example.com/v1/users?source=test',
+        client: 'Custom',
+        headers: {'content-type': 'application/json'},
+        body: '{"a":1}',
+      );
+
+      expect(samseer.calls, hasLength(1));
+      final call = samseer.calls.first;
+      expect(call.id, id);
+      expect(call.method, 'POST');
+      expect(call.client, 'Custom');
+      expect(call.endpoint, '/v1/users');
+      expect(call.server, 'api.example.com');
+      expect(call.secure, isTrue);
+      expect(call.request.queryParameters, {'source': 'test'});
+      expect(call.request.contentType, 'application/json');
+      expect(call.loading, isTrue);
+
+      samseer.recordResponse(id, status: 201, body: '{"id":42}');
+      final updated = samseer.calls.first;
+      expect(updated.response?.status, 201);
+      expect(updated.loading, isFalse);
+      expect(updated.state, SamseerCallState.success);
+    });
+
+    test('recordWebViewEvent dispatches req/res into a single call', () {
+      final samseer = Samseer(
+        configuration: const SamseerConfiguration(showInspectorOnShake: false),
+      );
+      addTearDown(samseer.dispose);
+
+      samseer.recordWebViewEvent({
+        'kind': 'req',
+        'cid': 'cid-1',
+        'method': 'GET',
+        'url': 'https://api.example.com/items?page=2',
+        'headers': {'accept': 'application/json'},
+        'body': null,
+      });
+
+      expect(samseer.calls, hasLength(1));
+      var call = samseer.calls.first;
+      expect(call.client, 'WebView');
+      expect(call.method, 'GET');
+      expect(call.endpoint, '/items');
+      expect(call.request.queryParameters, {'page': '2'});
+      expect(call.loading, isTrue);
+
+      samseer.recordWebViewEvent({
+        'kind': 'res',
+        'cid': 'cid-1',
+        'status': 200,
+        'headers': {'content-type': 'application/json'},
+        'body': '[]',
+      });
+
+      call = samseer.calls.first;
+      expect(call.response?.status, 200);
+      expect(call.response?.body, '[]');
+      expect(call.state, SamseerCallState.success);
+
+      // Late events for the same cid are ignored (id mapping cleared).
+      samseer.recordWebViewEvent({
+        'kind': 'res',
+        'cid': 'cid-1',
+        'status': 500,
+      });
+      expect(samseer.calls.first.response?.status, 200);
+    });
+
+    test('recordWebViewEvent ignores malformed payloads', () {
+      final samseer = Samseer(
+        configuration: const SamseerConfiguration(showInspectorOnShake: false),
+      );
+      addTearDown(samseer.dispose);
+
+      samseer.recordWebViewEvent(null);
+      samseer.recordWebViewEvent('not a map');
+      samseer.recordWebViewEvent({'kind': 'req'}); // missing cid
+      samseer.recordWebViewEvent({'cid': 'c'}); // missing kind
+
+      expect(samseer.calls, isEmpty);
+    });
   });
 }
