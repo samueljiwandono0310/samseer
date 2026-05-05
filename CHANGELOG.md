@@ -1,3 +1,11 @@
+## 0.3.1
+
+* Re-publish to retry pub.dev analysis. v0.3.0 was scored 70/160 because the
+  pub.dev analyzer's dependency resolver hit a transient upstream outage
+  (advisories endpoint failed), which cascaded into 0/50 static analysis,
+  0/20 platform support, and 0/10 dartdoc coverage. No code changes — `pana`
+  locally reports 160/160.
+
 ## 0.3.0
 
 * New: WebView inspector support — capture XHR and `fetch` calls happening
