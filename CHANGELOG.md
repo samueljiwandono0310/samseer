@@ -1,3 +1,9 @@
+## 0.3.2
+
+* Fix: `CallDetailScreen` now wraps its `Scaffold` with `SamseerTheme` so
+  the back button and copy icons use the correct foreground color regardless
+  of the host app's theme (previously they could appear white in dark mode)
+
 ## 0.3.1
 
 * Re-publish to retry pub.dev analysis. v0.3.0 was scored 70/160 because the

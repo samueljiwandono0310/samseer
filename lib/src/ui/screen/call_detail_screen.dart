@@ -28,46 +28,57 @@ class CallDetailScreen extends StatelessWidget {
         );
         return DefaultTabController(
           length: 4,
-          child: Scaffold(
-            appBar: AppBar(
-              title: Row(
-                children: [
-                  MethodBadge(method: call.method),
-                  const SizedBox(width: 8),
-                  StatusBadge(call: call, heroTag: 'samseer.status.${call.id}'),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      call.endpoint,
-                      style: Theme.of(context).textTheme.titleMedium,
-                      overflow: TextOverflow.ellipsis,
+          child: Theme(
+            data: switch (core.configuration.themeMode) {
+              ThemeMode.light => SamseerTheme.light(),
+              ThemeMode.dark => SamseerTheme.dark(),
+              ThemeMode.system =>
+                MediaQuery.platformBrightnessOf(context) == Brightness.dark
+                    ? SamseerTheme.dark()
+                    : SamseerTheme.light(),
+            },
+            child: Scaffold(
+              appBar: AppBar(
+                title: Row(
+                  children: [
+                    MethodBadge(method: call.method),
+                    const SizedBox(width: 8),
+                    StatusBadge(
+                        call: call, heroTag: 'samseer.status.${call.id}'),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        call.endpoint,
+                        style: Theme.of(context).textTheme.titleMedium,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
+                  ],
+                ),
+                actions: [
+                  IconButton(
+                    tooltip: 'Copy request & response',
+                    icon: const Icon(Icons.content_copy_outlined),
+                    onPressed: () => _copyDump(context, call),
                   ),
                 ],
-              ),
-              actions: [
-                IconButton(
-                  tooltip: 'Copy request & response',
-                  icon: const Icon(Icons.content_copy_outlined),
-                  onPressed: () => _copyDump(context, call),
+                bottom: const TabBar(
+                  tabs: [
+                    Tab(text: 'Overview'),
+                    Tab(text: 'Request'),
+                    Tab(text: 'Response'),
+                    Tab(text: 'cURL'),
+                  ],
                 ),
-              ],
-              bottom: const TabBar(
-                tabs: [
-                  Tab(text: 'Overview'),
-                  Tab(text: 'Request'),
-                  Tab(text: 'Response'),
-                  Tab(text: 'cURL'),
+              ),
+              body: TabBarView(
+                children: [
+                  _OverviewTab(call: call),
+                  _RequestTab(call: call),
+                  _ResponseTab(call: call),
+                  _CurlTab(call: call),
                 ],
               ),
-            ),
-            body: TabBarView(
-              children: [
-                _OverviewTab(call: call),
-                _RequestTab(call: call),
-                _ResponseTab(call: call),
-                _CurlTab(call: call),
-              ],
             ),
           ),
         );
