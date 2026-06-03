@@ -34,20 +34,16 @@ class SamseerColors {
 }
 
 class SamseerTheme {
-  static ThemeData light() => _build(Brightness.light);
-  static ThemeData dark() => _build(Brightness.dark);
+  static ThemeData theme() => _build();
 
-  static ThemeData _build(Brightness brightness) {
+  static ThemeData _build() {
+    const brightness = Brightness.dark;
     final colorScheme = ColorScheme.fromSeed(
       seedColor: SamseerColors.seed,
       brightness: brightness,
     );
 
-    final baseText = GoogleFonts.poppinsTextTheme(
-      brightness == Brightness.dark
-          ? ThemeData.dark().textTheme
-          : ThemeData.light().textTheme,
-    );
+    final baseText = GoogleFonts.poppinsTextTheme(ThemeData.dark().textTheme);
 
     return ThemeData(
       colorScheme: colorScheme,

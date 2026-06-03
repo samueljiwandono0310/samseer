@@ -6,7 +6,6 @@ class SamseerConfiguration {
     this.maxCallsCount = 1000,
     this.showInspectorOnShake = true,
     this.showFloatingBubble = false,
-    this.themeMode = ThemeMode.system,
     this.directionality,
     this.shakeThreshold = 20,
   });
@@ -20,9 +19,6 @@ class SamseerConfiguration {
   /// Whether to display a draggable floating bubble that opens the inspector.
   final bool showFloatingBubble;
 
-  /// Theme mode for the inspector UI.
-  final ThemeMode themeMode;
-
   /// Force a text direction in the inspector. If null, uses the host app's.
   final TextDirection? directionality;
 
@@ -34,7 +30,6 @@ class SamseerConfiguration {
     int? maxCallsCount,
     bool? showInspectorOnShake,
     bool? showFloatingBubble,
-    ThemeMode? themeMode,
     TextDirection? directionality,
     double? shakeThreshold,
   }) {
@@ -42,7 +37,6 @@ class SamseerConfiguration {
       maxCallsCount: maxCallsCount ?? this.maxCallsCount,
       showInspectorOnShake: showInspectorOnShake ?? this.showInspectorOnShake,
       showFloatingBubble: showFloatingBubble ?? this.showFloatingBubble,
-      themeMode: themeMode ?? this.themeMode,
       directionality: directionality ?? this.directionality,
       shakeThreshold: shakeThreshold ?? this.shakeThreshold,
     );

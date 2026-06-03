@@ -29,14 +29,7 @@ class _CallListScreenState extends State<CallListScreen> {
   Widget build(BuildContext context) {
     final config = widget.core.configuration;
     return Theme(
-      data: switch (config.themeMode) {
-        ThemeMode.light => SamseerTheme.light(),
-        ThemeMode.dark => SamseerTheme.dark(),
-        ThemeMode.system =>
-          MediaQuery.platformBrightnessOf(context) == Brightness.dark
-              ? SamseerTheme.dark()
-              : SamseerTheme.light(),
-      },
+      data: SamseerTheme.theme(),
       child: Directionality(
         textDirection: config.directionality ?? Directionality.of(context),
         child: Scaffold(

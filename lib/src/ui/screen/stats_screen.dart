@@ -10,7 +10,9 @@ class StatsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return Theme(
+      data: SamseerTheme.theme(),
+      child: Scaffold(
       appBar: AppBar(title: const Text('Stats')),
       body: StreamBuilder<List<SamseerHttpCall>>(
         stream: core.storage.stream,
@@ -60,6 +62,7 @@ class StatsScreen extends StatelessWidget {
             ],
           );
         },
+      ),
       ),
     );
   }

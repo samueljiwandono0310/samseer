@@ -1,3 +1,13 @@
+## 0.3.3
+
+* Removed theme switching — inspector now always renders in dark mode, reducing
+  complexity and eliminating host-app theme bleed
+* Fix: `StatsScreen` now wrapped with `SamseerTheme` for consistent dark mode
+  across all screens
+* Fix: endpoint text in `CallDetailScreen` AppBar is now white and bold,
+  independent of the host app's `textTheme`
+* Removed: `themeMode` field removed from `SamseerConfiguration`
+
 ## 0.3.2
 
 * Fix: `CallDetailScreen` now wraps its `Scaffold` with `SamseerTheme` so

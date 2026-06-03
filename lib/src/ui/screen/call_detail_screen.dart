@@ -29,14 +29,7 @@ class CallDetailScreen extends StatelessWidget {
         return DefaultTabController(
           length: 4,
           child: Theme(
-            data: switch (core.configuration.themeMode) {
-              ThemeMode.light => SamseerTheme.light(),
-              ThemeMode.dark => SamseerTheme.dark(),
-              ThemeMode.system =>
-                MediaQuery.platformBrightnessOf(context) == Brightness.dark
-                    ? SamseerTheme.dark()
-                    : SamseerTheme.light(),
-            },
+            data: SamseerTheme.theme(),
             child: Scaffold(
               appBar: AppBar(
                 title: Row(
@@ -49,7 +42,10 @@ class CallDetailScreen extends StatelessWidget {
                     Expanded(
                       child: Text(
                         call.endpoint,
-                        style: Theme.of(context).textTheme.titleMedium,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
