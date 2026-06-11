@@ -36,6 +36,7 @@ If you've used [Alice](https://pub.dev/packages/alice) or [Chuck](https://github
 - 📱 **Shake-to-open** the inspector from anywhere in your app
 - 💬 **Floating bubble overlay** with live call count (draggable)
 - 📤 **Export & share** all calls as JSON, or copy any request as cURL
+- 📋 **One-tap copy** per tab — copy request body, response body, or full URL + method independently
 - 🪶 **Single dependency** — `samseer` and you're done. No `samseer_dio`, `samseer_http` etc.
 
 ---
@@ -297,7 +298,6 @@ final samseer = Samseer(
     maxCallsCount: 500,
     showInspectorOnShake: true,
     showFloatingBubble: false,
-    themeMode: ThemeMode.system,
     shakeThreshold: 20,
   ),
 );
@@ -308,7 +308,6 @@ final samseer = Samseer(
 | `maxCallsCount` | `1000` | Older calls are evicted FIFO once the limit is hit |
 | `showInspectorOnShake` | `true` | Shake the device to open the inspector |
 | `showFloatingBubble` | `false` | Set to `true` and wrap with `samseer.overlay(...)` |
-| `themeMode` | `ThemeMode.system` | Forces light/dark theme of the inspector |
 | `shakeThreshold` | `20` (m/s²) | Higher value = harder shake required |
 | `directionality` | `null` | Force RTL/LTR inside the inspector |
 

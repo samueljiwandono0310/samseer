@@ -1,3 +1,10 @@
+## 0.4.0
+
+* New: **Copy Request Body** button on the Request tab — copies the formatted request body to the clipboard; disabled when there is no body
+* New: **Copy Response Body** button on the Response tab — copies the formatted response body to the clipboard; disabled when there is no body
+* New: **Copy URL** button on the Overview tab — copies `METHOD URL` (e.g. `GET https://api.example.com/users`) to the clipboard
+* `Exporter`: added `buildRequestBody` and `buildResponseBody` helpers
+
 ## 0.3.3
 
 * Removed theme switching — inspector now always renders in dark mode, reducing

@@ -75,6 +75,21 @@ class Exporter {
     return b.toString();
   }
 
+  /// Returns the request body as a formatted string, or null if there is none.
+  static String? buildRequestBody(SamseerHttpCall call) {
+    if (call.request.body == null) return null;
+    const encoder = JsonEncoder.withIndent('  ');
+    return _formatBody(call.request.body, encoder);
+  }
+
+  /// Returns the response body as a formatted string, or null if there is none.
+  static String? buildResponseBody(SamseerHttpCall call) {
+    final body = call.response?.body;
+    if (body == null) return null;
+    const encoder = JsonEncoder.withIndent('  ');
+    return _formatBody(body, encoder);
+  }
+
   /// Build a cURL representation of the given call.
   static String buildCurl(SamseerHttpCall call) {
     final buffer = StringBuffer('curl -X ${call.method.toUpperCase()}');

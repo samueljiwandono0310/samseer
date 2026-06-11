@@ -171,7 +171,24 @@ class _OverviewTab extends StatelessWidget {
               ),
             ),
           ),
-        const SizedBox(height: 24),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+          child: FilledButton.icon(
+            icon: const Icon(Icons.copy),
+            label: const Text('Copy URL'),
+            onPressed: () async {
+              final text = '${call.method.toUpperCase()} ${call.uri}';
+              await Clipboard.setData(ClipboardData(text: text));
+              if (!context.mounted) return;
+              SamseerToast.show(
+                context,
+                'URL copied',
+                subtitle: '${call.method.toUpperCase()} ${call.endpoint}',
+                variant: SamseerToastVariant.success,
+              );
+            },
+          ),
+        ),
       ],
     );
   }
@@ -223,7 +240,26 @@ class _RequestTab extends StatelessWidget {
                 : JsonViewer(value: call.request.body),
           ),
         ),
-        const SizedBox(height: 24),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+          child: FilledButton.icon(
+            icon: const Icon(Icons.copy),
+            label: const Text('Copy Request Body'),
+            onPressed: call.request.body == null
+                ? null
+                : () async {
+                    final body = Exporter.buildRequestBody(call)!;
+                    await Clipboard.setData(ClipboardData(text: body));
+                    if (!context.mounted) return;
+                    SamseerToast.show(
+                      context,
+                      'Request body copied',
+                      subtitle: Exporter.formatSize(body.length),
+                      variant: SamseerToastVariant.success,
+                    );
+                  },
+          ),
+        ),
       ],
     );
   }
@@ -271,7 +307,26 @@ class _ResponseTab extends StatelessWidget {
                 : JsonViewer(value: response.body),
           ),
         ),
-        const SizedBox(height: 24),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+          child: FilledButton.icon(
+            icon: const Icon(Icons.copy),
+            label: const Text('Copy Response Body'),
+            onPressed: call.response?.body == null
+                ? null
+                : () async {
+                    final body = Exporter.buildResponseBody(call)!;
+                    await Clipboard.setData(ClipboardData(text: body));
+                    if (!context.mounted) return;
+                    SamseerToast.show(
+                      context,
+                      'Response body copied',
+                      subtitle: Exporter.formatSize(body.length),
+                      variant: SamseerToastVariant.success,
+                    );
+                  },
+          ),
+        ),
       ],
     );
   }
